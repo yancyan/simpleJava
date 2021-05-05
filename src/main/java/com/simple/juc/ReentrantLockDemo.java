@@ -33,9 +33,6 @@ public class ReentrantLockDemo {
 
         System.out.println("###############");
 
-        var s = a = "abc";
-        System.out.println(s);
-        System.out.println(s == a);
-        System.out.println(a);
+        lock.lock();
     }
 }
