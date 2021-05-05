@@ -232,7 +232,7 @@ public class RBTree<K extends Comparable<K>, V> {
         }
 
         // 修复红黑树平衡方法
-
+        insertFixup(node);
     }
 
     /**
@@ -257,6 +257,77 @@ public class RBTree<K extends Comparable<K>, V> {
         RBNode<K, V> parent = getParent(node);
         RBNode<K, V> gParent = getParent(parent);
 
+        // 情景4：插入节点的父节点为红色
+        if (parent != null && isRed(parent)) {
+            // 如果父节点为红色，那么一定存在爷爷节点，因为根节点为黑色
+
+            RBNode<K, V> uncle = null;
+
+            if (parent == gParent.left) { // 父节点为爷爷的左子树
+                uncle = gParent.right;
+
+                //情景4.1： 叔叔节点存在并且为红色（父-叔 双红）
+                if (uncle != null && isRed(uncle)) {
+                    // 将爸爸和叔叔染色黑色，并将爷爷染色红色，并且以爷爷为当前节点，进行下一轮处理
+                    setBlack(parent);
+                    setBlack(uncle);
+
+                    setRed(gParent);
+                    insertFixup(gParent);
+                    return;
+                }
+                // 情景4.2： 叔叔节点不存在，或者为黑色
+                if (uncle == null || isBlack(uncle)) {
+                    //情景4.2.1：插入节点为其父节点的左子节点（LL），将爸爸染色为黑色，爷爷染色为红色，然后以爷爷节点右旋，
+                    if (node == parent.left) {
+                        setBlack(parent);
+                        setRed(gParent);
+                        rightRotate(gParent);
+                        return;
+                    }
+                    //情景4.2.2：插入节点为其父节点的右子节点（LR）
+                    // 以爸爸节点进行一次左旋，得到LL双红的情况（4.2.1），然后指定爸爸节点为当前节点进行下一轮处理
+                    if (node == parent.right) {
+                        leftRotate(parent);
+                        insertFixup(parent);
+                        return;
+                    }
+
+                }
+
+            } else { // 父接地那为爷爷节点右子树
+
+                //情景4.1：叔叔节点存在并且为红色（父-叔 双红），
+                // 将爸爸和叔叔染为黑色，将爷爷染为红色，并再以爷爷节点为当前节点，进行下一轮处理
+                if (uncle != null && isRed(uncle)) {
+                    setBlack(parent);
+                    setBlack(uncle);
+                    setRed(gParent);
+                    insertFixup(gParent);
+                    return;
+                }
+
+                // 情景4.3：叔叔节点不存在或为黑色，父节点为爷爷节点的右子树
+                if (uncle == null || isBlack(uncle)) {
+                    // 情景4.3.1：插入节点为其父节点的右子节点（RR），将爸爸染色为黑色，将爷爷染色为红色，然后以爷爷节点左旋
+                    if (node == parent.right) {
+                        setBlack(parent);
+                        setRed(gParent);
+                        leftRotate(gParent);
+                        return;
+                    }
+
+                    // 情景4.3.2：插入节点为其父节点的左子节点（RL）
+                    // 以爸爸节点进行一次右旋，得到RR双红的情景（4.3.1），然后指定爸爸节点为当前节点进行下一轮处理
+                    if (node == parent.left) {
+                        rightRotate(parent);
+                        insertFixup(parent);
+                        return;
+                    }
+                }
+
+            }
+        }
 
     }
 
