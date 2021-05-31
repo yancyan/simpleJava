@@ -1,4 +1,4 @@
-﻿package com.simple.juc;
+package com.simple.juc;
 
 import lombok.SneakyThrows;
 
